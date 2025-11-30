@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SudoTools - Developer Utilities</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#1e293b', // Custom darker slate
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        pre,
+        code,
+        textarea {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .tool-view {
+            display: none;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        .tool-view.active {
+            display: block;
+        }
+
+        .tool-view.active.use-flex {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Markdown Preview Styles */
+        .markdown-body h1 {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 0.5em;
+            border-bottom: 1px solid #475569;
+            padding-bottom: 0.3em;
+        }
+
+        .markdown-body h2 {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 0.5em;
+            margin-top: 1em;
+            border-bottom: 1px solid #475569;
+            padding-bottom: 0.3em;
+        }
+
+        .markdown-body p {
+            margin-bottom: 1em;
+            line-height: 1.6;
+        }
+
+        .markdown-body ul {
+            list-style-type: disc;
+            padding-left: 1.5em;
+            margin-bottom: 1em;
+        }
+
+        .markdown-body ol {
+            list-style-type: decimal;
+            padding-left: 1.5em;
+            margin-bottom: 1em;
+        }
+
+        .markdown-body blockquote {
+            border-left: 4px solid #64748b;
+            padding-left: 1em;
+            color: #94a3b8;
+            margin-bottom: 1em;
+        }
+
+        .markdown-body code {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        .markdown-body pre {
+            background-color: #1e293b;
+            padding: 1em;
+            border-radius: 0.5em;
+            overflow-x: auto;
+            margin-bottom: 1em;
+        }
+
+        .markdown-body pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .markdown-body a {
+            color: #38bdf8;
+            text-decoration: none;
+        }
+
+        .markdown-body a:hover {
+            text-decoration: underline;
+        }
+
+        .markdown-body table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 1em;
+        }
+
+        .markdown-body th,
+        .markdown-body td {
+            border: 1px solid #475569;
+            padding: 0.5em;
+        }
+
+        .markdown-body th {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-200 h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside
+        class="w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col shadow-lg z-10 transition-colors duration-200 hidden md:flex">
+        <div class="p-6 flex items-center gap-3 border-b border-slate-200 dark:border-slate-700">
+            <i class="fa-solid fa-terminal text-2xl text-indigo-600 dark:text-indigo-400"></i>
+            <h1 class="text-xl font-bold tracking-tight">SudoTools</h1>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+            <button onclick="switchTool('json')" id="nav-json"
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
+                <i class="fa-solid fa-code w-5"></i>
+                JSON Formatter
+            </button>
+            <button onclick="switchTool('timestamp')" id="nav-timestamp"
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
+                <i class="fa-solid fa-clock w-5"></i>
+                Timestamp Converter
+            </button>
+            <button onclick="switchTool('markdown')" id="nav-markdown"
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
+                <i class="fa-brands fa-markdown w-5"></i>
+                Markdown Preview
+            </button>
+            <button onclick="switchTool('base64')" id="nav-base64"
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
+                <i class="fa-solid fa-shield-halved w-5"></i>
+                Base64 Encoder
+            </button>
+            <button onclick="switchTool('css')" id="nav-css"
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
+                <i class="fa-solid fa-ruler-combined w-5"></i>
+                CSS Unit Converter
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-slate-200 dark:border-slate-700">
+            <div class="text-xs text-slate-500 dark:text-slate-500 text-center">
+                &copy; 2025 SudoTools
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Header -->
+    <div
+        class="md:hidden fixed top-0 left-0 right-0 h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-4 z-20">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-terminal text-xl text-indigo-600 dark:text-indigo-400"></i>
+            <span class="font-bold text-lg">SudoTools</span>
+        </div>
+        <button id="mobile-menu-btn" class="text-slate-600 dark:text-slate-300 focus:outline-none">
+            <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-slate-900/90 z-30 hidden flex-col p-4 md:hidden backdrop-blur-sm">
+        <div class="flex justify-end mb-4">
+            <button id="close-mobile-menu" class="text-white p-2">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+        </div>
+        <nav class="space-y-2">
+            <!-- Mobile Nav Items (Cloned via JS or repeated) -->
+            <button onclick="switchTool('json'); toggleMobileMenu()"
+                class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">JSON
+                Formatter</button>
+            <button onclick="switchTool('timestamp'); toggleMobileMenu()"
+                class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">Timestamp
+                Converter</button>
+            <button onclick="switchTool('markdown'); toggleMobileMenu()"
+                class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">Markdown
+                Preview</button>
+            <button onclick="switchTool('base64'); toggleMobileMenu()"
+                class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">Base64
+                Encoder</button>
+            <button onclick="switchTool('css'); toggleMobileMenu()"
+                class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">CSS Unit
+                Converter</button>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden pt-16 md:pt-0 relative">
+        <!-- Header -->
+        <header
+            class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 shrink-0">
+            <h2 id="page-title" class="text-lg font-semibold text-slate-800 dark:text-white">JSON Formatter</h2>
+
+            <button id="theme-toggle"
+                class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 transition-colors focus:outline-none"
+                title="Toggle Theme">
+                <i class="fa-solid fa-moon text-lg dark:hidden"></i>
+                <i class="fa-solid fa-sun text-lg hidden dark:block"></i>
+            </button>
+        </header>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50 dark:bg-slate-900">
+
+            <!-- JSON Tool -->
+            <div id="view-json" class="tool-view max-w-6xl mx-auto h-full flex-col use-flex">
+                <div class="flex gap-2 mb-4">
+                    <button onclick="jsonPrettify()"
+                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
+                        <i class="fa-solid fa-align-left mr-2"></i>Prettify
+                    </button>
+                    <button onclick="jsonMinify()"
+                        class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-md text-sm font-medium transition-colors">
+                        <i class="fa-solid fa-compress mr-2"></i>Minify
+                    </button>
+                    <button onclick="jsonClear()"
+                        class="px-4 py-2 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-md text-sm font-medium transition-colors ml-auto">
+                        <i class="fa-solid fa-trash mr-2"></i>Clear
+                    </button>
+                </div>
+
+                <div id="json-error"
+                    class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-md text-sm font-mono">
+                </div>
+
+                <div class="flex-1 flex flex-col md:flex-row gap-4 min-h-0">
+                    <div class="flex-1 flex flex-col min-h-[300px]">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-medium text-slate-500 dark:text-slate-400">Input</label>
+                            <button onclick="copyToClipboard('json-input')"
+                                class="text-xs text-indigo-500 hover:text-indigo-400">Copy</button>
+                        </div>
+                        <textarea id="json-input"
+                            class="flex-1 w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm leading-relaxed"
+                            placeholder="Paste JSON here..."></textarea>
+                    </div>
+                    <div class="flex-1 flex flex-col min-h-[300px]">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-medium text-slate-500 dark:text-slate-400">Output</label>
+                            <button onclick="copyToClipboard('json-output')"
+                                class="text-xs text-indigo-500 hover:text-indigo-400">Copy</button>
+                        </div>
+                        <textarea id="json-output" readonly
+                            class="flex-1 w-full p-4 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg resize-none outline-none text-sm leading-relaxed text-slate-700 dark:text-slate-300"
+                            placeholder="Result will appear here..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timestamp Tool -->
+            <div id="view-timestamp" class="tool-view max-w-4xl mx-auto">
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6">
+                    <h3 class="text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-4">
+                        Current Time</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                            <div class="text-xs text-slate-500 mb-1">Unix (Seconds)</div>
+                            <div id="current-unix-s"
+                                class="text-2xl font-mono font-bold text-indigo-600 dark:text-indigo-400"></div>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                            <div class="text-xs text-slate-500 mb-1">Unix (Millis)</div>
+                            <div id="current-unix-ms"
+                                class="text-2xl font-mono font-bold text-indigo-600 dark:text-indigo-400"></div>
+                        </div>
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+                            <div class="text-xs text-slate-500 mb-1">UTC</div>
+                            <div id="current-utc"
+                                class="text-lg font-mono font-medium text-slate-700 dark:text-slate-300 pt-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+                    <h3 class="text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-4">
+                        Converter</h3>
+                    <div class="flex gap-4 mb-6">
+                        <input type="text" id="ts-input"
+                            class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
+                            placeholder="Enter Unix Timestamp or Date String">
+                        <button onclick="convertTimestamp()"
+                            class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">Convert</button>
+                    </div>
+
+                    <div id="ts-results" class="hidden">
+                        <table class="w-full text-left border-collapse">
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                                <tr>
+                                    <td class="py-3 px-2 text-sm text-slate-500 dark:text-slate-400 w-1/3">Local Time
+                                    </td>
+                                    <td class="py-3 px-2 font-mono text-slate-800 dark:text-slate-200" id="res-local">
+                                    </td>
+                                    <td class="py-3 px-2 text-right"><button
+                                            onclick="copyText(document.getElementById('res-local').innerText)"
+                                            class="text-slate-400 hover:text-indigo-500"><i
+                                                class="fa-regular fa-copy"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-2 text-sm text-slate-500 dark:text-slate-400">UTC / GMT</td>
+                                    <td class="py-3 px-2 font-mono text-slate-800 dark:text-slate-200" id="res-utc">
+                                    </td>
+                                    <td class="py-3 px-2 text-right"><button
+                                            onclick="copyText(document.getElementById('res-utc').innerText)"
+                                            class="text-slate-400 hover:text-indigo-500"><i
+                                                class="fa-regular fa-copy"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-2 text-sm text-slate-500 dark:text-slate-400">ISO 8601</td>
+                                    <td class="py-3 px-2 font-mono text-slate-800 dark:text-slate-200" id="res-iso">
+                                    </td>
+                                    <td class="py-3 px-2 text-right"><button
+                                            onclick="copyText(document.getElementById('res-iso').innerText)"
+                                            class="text-slate-400 hover:text-indigo-500"><i
+                                                class="fa-regular fa-copy"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-2 text-sm text-slate-500 dark:text-slate-400">Relative</td>
+                                    <td class="py-3 px-2 font-mono text-slate-800 dark:text-slate-200"
+                                        id="res-relative"></td>
+                                    <td class="py-3 px-2 text-right"><button
+                                            onclick="copyText(document.getElementById('res-relative').innerText)"
+                                            class="text-slate-400 hover:text-indigo-500"><i
+                                                class="fa-regular fa-copy"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Markdown Tool -->
+            <div id="view-markdown" class="tool-view h-full flex-col use-flex">
+                <div class="flex-1 flex flex-col md:flex-row gap-4 min-h-0 h-full">
+                    <div class="flex-1 flex flex-col h-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-medium text-slate-500 dark:text-slate-400">Markdown Input</label>
+                            <button onclick="copyToClipboard('md-input')"
+                                class="text-xs text-indigo-500 hover:text-indigo-400">Copy</button>
+                        </div>
+                        <textarea id="md-input"
+                            class="flex-1 w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm leading-relaxed"
+                            placeholder="# Hello World"></textarea>
+                    </div>
+                    <div class="flex-1 flex flex-col h-full min-h-[300px]">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-medium text-slate-500 dark:text-slate-400">Preview</label>
+                        </div>
+                        <div id="md-preview"
+                            class="flex-1 w-full p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-y-auto markdown-body text-slate-800 dark:text-slate-200">
+                            <!-- Preview Content -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Base64 Tool -->
+            <div id="view-base64" class="tool-view max-w-4xl mx-auto">
+                <div class="flex justify-center mb-8">
+                    <div class="bg-slate-200 dark:bg-slate-700 p-1 rounded-lg flex">
+                        <button onclick="setBase64Mode('encode')" id="btn-b64-encode"
+                            class="px-6 py-2 rounded-md text-sm font-medium transition-all bg-white dark:bg-slate-600 shadow-sm text-indigo-600 dark:text-indigo-400">Encode</button>
+                        <button onclick="setBase64Mode('decode')" id="btn-b64-decode"
+                            class="px-6 py-2 rounded-md text-sm font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200">Decode</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label id="b64-input-label"
+                                class="text-sm font-medium text-slate-500 dark:text-slate-400">Text to Encode</label>
+                            <button onclick="copyToClipboard('b64-input')"
+                                class="text-xs text-indigo-500 hover:text-indigo-400">Copy</button>
+                        </div>
+                        <textarea id="b64-input"
+                            class="w-full h-40 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm"
+                            placeholder="Type here..."></textarea>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <i class="fa-solid fa-arrow-down text-slate-400 text-xl"></i>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label id="b64-output-label"
+                                class="text-sm font-medium text-slate-500 dark:text-slate-400">Base64 Output</label>
+                            <button onclick="copyToClipboard('b64-output')"
+                                class="text-xs text-indigo-500 hover:text-indigo-400">Copy</button>
+                        </div>
+                        <textarea id="b64-output" readonly
+                            class="w-full h-40 p-4 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg resize-none outline-none font-mono text-sm text-slate-700 dark:text-slate-300"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSS Unit Tool -->
+            <div id="view-css" class="tool-view max-w-2xl mx-auto">
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-8">
+                    <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-200 dark:border-slate-700">
+                        <label class="text-sm font-medium text-slate-500 dark:text-slate-400">Root Font Size
+                            (px)</label>
+                        <input type="number" id="css-root" value="16"
+                            class="w-24 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none text-center font-mono">
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="relative">
+                            <label
+                                class="absolute -top-2.5 left-3 px-1 bg-white dark:bg-slate-800 text-xs font-medium text-indigo-600 dark:text-indigo-400">Pixels
+                                (px)</label>
+                            <input type="number" id="css-px"
+                                class="w-full px-4 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-lg"
+                                placeholder="16">
+                            <button onclick="copyToClipboard('css-px')"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+
+                        <div class="relative">
+                            <label
+                                class="absolute -top-2.5 left-3 px-1 bg-white dark:bg-slate-800 text-xs font-medium text-indigo-600 dark:text-indigo-400">REM</label>
+                            <input type="number" id="css-rem"
+                                class="w-full px-4 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-lg"
+                                placeholder="1">
+                            <button onclick="copyToClipboard('css-rem')"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+
+                        <div class="relative">
+                            <label
+                                class="absolute -top-2.5 left-3 px-1 bg-white dark:bg-slate-800 text-xs font-medium text-indigo-600 dark:text-indigo-400">EM</label>
+                            <input type="number" id="css-em"
+                                class="w-full px-4 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-lg"
+                                placeholder="1">
+                            <button onclick="copyToClipboard('css-em')"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500"><i
+                                    class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- State Management ---
+        const state = {
+            currentTool: localStorage.getItem('lastTool') || 'json',
+            theme: localStorage.getItem('theme') || 'dark',
+            base64Mode: 'encode'
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            initNavigation();
+            initTools();
+        });
+
+        // --- Theme Logic ---
+        function initTheme() {
+            const html = document.documentElement;
+            const toggleBtn = document.getElementById('theme-toggle');
+
+            function applyTheme(isDark) {
+                if (isDark) {
+                    html.classList.add('dark');
+                } else {
+                    html.classList.remove('dark');
+                }
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            }
+
+            // Initial Apply
+            applyTheme(state.theme === 'dark');
+
+            toggleBtn.addEventListener('click', () => {
+                const isDark = html.classList.contains('dark');
+                applyTheme(!isDark);
+            });
+        }
+
+        // --- Navigation Logic ---
+        function initNavigation() {
+            switchTool(state.currentTool);
+
+            // Mobile Menu
+            document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+            document.getElementById('close-mobile-menu').addEventListener('click', toggleMobileMenu);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+            menu.classList.toggle('flex');
+        }
+
+        function switchTool(toolId) {
+            // Update State
+            state.currentTool = toolId;
+            localStorage.setItem('lastTool', toolId);
+
+            // Update UI - Sidebar Active State
+            document.querySelectorAll('.nav-item').forEach(el => {
+                if (el.id === `nav-${toolId}`) {
+                    el.classList.add('bg-slate-100', 'dark:bg-slate-700', 'text-indigo-600', 'dark:text-indigo-400');
+                    el.classList.remove('text-slate-600', 'dark:text-slate-400');
+                } else {
+                    el.classList.remove('bg-slate-100', 'dark:bg-slate-700', 'text-indigo-600', 'dark:text-indigo-400');
+                    el.classList.add('text-slate-600', 'dark:text-slate-400');
+                }
+            });
+
+            // Show View
+            document.querySelectorAll('.tool-view').forEach(el => el.classList.remove('active'));
+            document.getElementById(`view-${toolId}`).classList.add('active');
+
+            // Update Title
+            const titles = {
+                'json': 'JSON Formatter & Validator',
+                'timestamp': 'Unix Timestamp Converter',
+                'markdown': 'Markdown Previewer',
+                'base64': 'Base64 Encoder / Decoder',
+                'css': 'CSS Unit Converter'
+            };
+            document.getElementById('page-title').innerText = titles[toolId];
+        }
+
+        function initTools() {
+            initJsonTool();
+            initTimestampTool();
+            initMarkdownTool();
+            initBase64Tool();
+            initCssTool();
+        }
+
+        // --- Shared Utils ---
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            el.select();
+            document.execCommand('copy');
+            // Visual feedback could be added here
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+        }
+
+        // --- JSON Tool ---
+        function initJsonTool() {
+            const input = document.getElementById('json-input');
+            const output = document.getElementById('json-output');
+            const errorBox = document.getElementById('json-error');
+
+            // Auto-validate on input
+            input.addEventListener('input', () => {
+                if (!input.value.trim()) {
+                    errorBox.classList.add('hidden');
+                    return;
+                }
+                try {
+                    JSON.parse(input.value);
+                    errorBox.classList.add('hidden');
+                    input.classList.remove('border-red-500', 'focus:ring-red-500');
+                    input.classList.add('focus:ring-indigo-500');
+                } catch (e) {
+                    // Don't show error immediately while typing, only on explicit action or debounce?
+                    // Requirement says "Auto-detect JSON errors". Let's show it.
+                    showJsonError(e);
+                }
+            });
+        }
+
+        function showJsonError(e) {
+            const errorBox = document.getElementById('json-error');
+            const input = document.getElementById('json-input');
+
+            errorBox.innerText = `Error: ${e.message}`;
+            errorBox.classList.remove('hidden');
+
+            input.classList.remove('focus:ring-indigo-500');
+            input.classList.add('border-red-500', 'focus:ring-red-500');
+        }
+
+        function jsonPrettify() {
+            const input = document.getElementById('json-input');
+            const output = document.getElementById('json-output');
+            const errorBox = document.getElementById('json-error');
+
+            if (!input.value.trim()) return;
+
+            try {
+                const obj = JSON.parse(input.value);
+                output.value = JSON.stringify(obj, null, 2);
+                errorBox.classList.add('hidden');
+            } catch (e) {
+                showJsonError(e);
+            }
+        }
+
+        function jsonMinify() {
+            const input = document.getElementById('json-input');
+            const output = document.getElementById('json-output');
+            const errorBox = document.getElementById('json-error');
+
+            if (!input.value.trim()) return;
+
+            try {
+                const obj = JSON.parse(input.value);
+                output.value = JSON.stringify(obj);
+                errorBox.classList.add('hidden');
+            } catch (e) {
+                showJsonError(e);
+            }
+        }
+
+        function jsonClear() {
+            document.getElementById('json-input').value = '';
+            document.getElementById('json-output').value = '';
+            document.getElementById('json-error').classList.add('hidden');
+        }
+
+        // --- Timestamp Tool ---
+        function initTimestampTool() {
+            // Live Clock
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('current-unix-s').innerText = Math.floor(now.getTime() / 1000);
+                document.getElementById('current-unix-ms').innerText = now.getTime();
+                document.getElementById('current-utc').innerText = now.toUTCString();
+            }, 1000);
+
+            // Input Handler
+            document.getElementById('ts-input').addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                if (!val) {
+                    document.getElementById('ts-results').classList.add('hidden');
+                    return;
+                }
+                convertTimestamp(val);
+            });
+        }
+
+        function convertTimestamp(val) {
+            if (!val) val = document.getElementById('ts-input').value.trim();
+            if (!val) return;
+
+            let date;
+            // Check if numeric (Unix Timestamp)
+            if (/^\d+$/.test(val)) {
+                // Guess seconds vs millis based on length
+                // 10 digits = seconds (up to year 2286)
+                // 13 digits = millis
+                if (val.length <= 10) {
+                    date = new Date(parseInt(val) * 1000);
+                } else {
+                    date = new Date(parseInt(val));
+                }
+            } else {
+                date = new Date(val);
+            }
+
+            if (isNaN(date.getTime())) {
+                // Invalid date
+                return;
+            }
+
+            document.getElementById('ts-results').classList.remove('hidden');
+            document.getElementById('res-local').innerText = date.toString();
+            document.getElementById('res-utc').innerText = date.toUTCString();
+            document.getElementById('res-iso').innerText = date.toISOString();
+
+            // Relative
+            const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+            const diffMs = date.getTime() - new Date().getTime();
+            const diffSec = Math.round(diffMs / 1000);
+            const diffMin = Math.round(diffSec / 60);
+            const diffHour = Math.round(diffMin / 60);
+            const diffDay = Math.round(diffHour / 24);
+
+            let rel = '';
+            if (Math.abs(diffSec) < 60) rel = rtf.format(diffSec, 'second');
+            else if (Math.abs(diffMin) < 60) rel = rtf.format(diffMin, 'minute');
+            else if (Math.abs(diffHour) < 24) rel = rtf.format(diffHour, 'hour');
+            else rel = rtf.format(diffDay, 'day');
+
+            document.getElementById('res-relative').innerText = rel;
+        }
+
+        // --- Markdown Tool ---
+        function initMarkdownTool() {
+            const input = document.getElementById('md-input');
+            const preview = document.getElementById('md-preview');
+
+            // Default content
+            input.value = "# Welcome to SudoTools\n\nType some markdown here to see the live preview.\n\n```javascript\nconsole.log('Hello World');\n```";
+            updatePreview();
+
+            input.addEventListener('input', updatePreview);
+
+            function updatePreview() {
+                preview.innerHTML = marked.parse(input.value);
+                hljs.highlightAll();
+            }
+        }
+
+        // --- Base64 Tool ---
+        function initBase64Tool() {
+            const input = document.getElementById('b64-input');
+
+            input.addEventListener('input', processBase64);
+        }
+
+        function setBase64Mode(mode) {
+            state.base64Mode = mode;
+            const btnEncode = document.getElementById('btn-b64-encode');
+            const btnDecode = document.getElementById('btn-b64-decode');
+            const labelIn = document.getElementById('b64-input-label');
+            const labelOut = document.getElementById('b64-output-label');
+
+            if (mode === 'encode') {
+                btnEncode.className = "px-6 py-2 rounded-md text-sm font-medium transition-all bg-white dark:bg-slate-600 shadow-sm text-indigo-600 dark:text-indigo-400";
+                btnDecode.className = "px-6 py-2 rounded-md text-sm font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200";
+                labelIn.innerText = "Text to Encode";
+                labelOut.innerText = "Base64 Output";
+            } else {
+                btnDecode.className = "px-6 py-2 rounded-md text-sm font-medium transition-all bg-white dark:bg-slate-600 shadow-sm text-indigo-600 dark:text-indigo-400";
+                btnEncode.className = "px-6 py-2 rounded-md text-sm font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200";
+                labelIn.innerText = "Base64 to Decode";
+                labelOut.innerText = "Text Output";
+            }
+            processBase64();
+        }
+
+        function processBase64() {
+            const input = document.getElementById('b64-input').value;
+            const output = document.getElementById('b64-output');
+
+            if (!input) {
+                output.value = '';
+                return;
+            }
+
+            try {
+                if (state.base64Mode === 'encode') {
+                    output.value = btoa(input);
+                } else {
+                    output.value = atob(input);
+                }
+            } catch (e) {
+                output.value = "Invalid Input";
+            }
+        }
+
+        // --- CSS Unit Tool ---
+        function initCssTool() {
+            const root = document.getElementById('css-root');
+            const px = document.getElementById('css-px');
+            const rem = document.getElementById('css-rem');
+            const em = document.getElementById('css-em');
+
+            function update(source) {
+                const r = parseFloat(root.value) || 16;
+
+                if (source === 'px') {
+                    const val = parseFloat(px.value);
+                    if (!isNaN(val)) {
+                        rem.value = (val / r).toFixed(4).replace(/\.?0+$/, '');
+                        em.value = (val / r).toFixed(4).replace(/\.?0+$/, '');
+                    } else {
+                        rem.value = ''; em.value = '';
+                    }
+                } else if (source === 'rem') {
+                    const val = parseFloat(rem.value);
+                    if (!isNaN(val)) {
+                        px.value = (val * r).toFixed(4).replace(/\.?0+$/, '');
+                        em.value = val; // Assuming em context is same as root for simplicity in this tool
+                    } else {
+                        px.value = ''; em.value = '';
+                    }
+                } else if (source === 'em') {
+                    const val = parseFloat(em.value);
+                    if (!isNaN(val)) {
+                        px.value = (val * r).toFixed(4).replace(/\.?0+$/, '');
+                        rem.value = val;
+                    } else {
+                        px.value = ''; rem.value = '';
+                    }
+                }
+            }
+
+            root.addEventListener('input', () => update('px')); // Re-calc based on px
+            px.addEventListener('input', () => update('px'));
+            rem.addEventListener('input', () => update('rem'));
+            em.addEventListener('input', () => update('em'));
+        }
+
+    </script>
+</body>
+
+</html>
