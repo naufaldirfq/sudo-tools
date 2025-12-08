@@ -7,8 +7,8 @@ SudoTools is a collection of essential developer tools that runs entirely in the
 -   **JSON Formatter & Validator**: Prettify, minify, and validate JSON with error detection.
 -   **Unix Timestamp Converter**: Live clock and bidirectional conversion between Unix timestamps and human-readable dates.
 -   **Markdown Previewer**: Real-time Markdown rendering with syntax highlighting.
--   **Base64 Encoder/Decoder**: Simple text to Base64 and Base64 to text conversion.
--   **CSS Unit Converter**: Convert between PX, REM, and EM based on a configurable root font size.
+-   **URL Encoder/Decoder**: Standard URL encoding and decoding.
+-   **Diff Checker**: Compare text differences with split view and character highlighting.
 -   **Theme System**: Professional Dark Mode (default) and Light Mode with persistence.
 -   **Responsive Design**: Fully functional on mobile and desktop devices.
 -   **Offline Capable**: Runs entirely in the browser after initial load (CDNs required for first load).

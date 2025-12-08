@@ -34,8 +34,8 @@
     <!-- Marked.js -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <!-- QRCode.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- jsdiff -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.2.0/diff.min.js"></script>
 
     <!-- Highlight.js -->
     <link rel="stylesheet"
@@ -218,30 +218,15 @@
                 <i class="fa-brands fa-markdown w-5"></i>
                 Markdown Preview
             </button>
-            <button onclick="switchTool('base64')" id="nav-base64"
-                class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
-                <i class="fa-solid fa-shield-halved w-5"></i>
-                Base64 Encoder
-            </button>
-            <button onclick="switchTool('css')" id="nav-css"
-                class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
-                <i class="fa-solid fa-ruler-combined w-5"></i>
-                CSS Unit Converter
-            </button>
-            <button onclick="switchTool('qrcode')" id="nav-qrcode"
-                class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
-                <i class="fa-solid fa-qrcode w-5"></i>
-                QR Code Generator
-            </button>
             <button onclick="switchTool('url')" id="nav-url"
                 class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
                 <i class="fa-solid fa-link w-5"></i>
                 URL Encoder/Decoder
             </button>
-            <button onclick="switchTool('dart')" id="nav-dart"
+            <button onclick="switchTool('diff')" id="nav-diff"
                 class="nav-item w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400">
-                <i class="fa-brands fa-android w-5"></i>
-                JSON to Dart
+                <i class="fa-solid fa-code-compare w-5"></i>
+                Diff Checker
             </button>
         </nav>
 
@@ -282,21 +267,12 @@
             <button onclick="switchTool('markdown'); toggleMobileMenu()"
                 class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">Markdown
                 Preview</button>
-            <button onclick="switchTool('base64'); toggleMobileMenu()"
-                class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">Base64
-                Encoder</button>
-            <button onclick="switchTool('css'); toggleMobileMenu()"
-                class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">CSS Unit
-                Converter</button>
-            <button onclick="switchTool('qrcode'); toggleMobileMenu()"
-                class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">QR Code
-                Generator</button>
             <button onclick="switchTool('url'); toggleMobileMenu()"
                 class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">URL
                 Encoder/Decoder</button>
-            <button onclick="switchTool('dart'); toggleMobileMenu()"
-                class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">JSON to
-                Dart</button>
+            <button onclick="switchTool('diff'); toggleMobileMenu()"
+                class="w-full text-left px-4 py-3 text-white font-medium rounded-lg hover:bg-white/10">Diff
+                Checker</button>
         </nav>
     </div>
 
@@ -476,73 +452,9 @@
                 </div>
             </div>
 
-            <!-- Base64 Tool -->
-            <div id="view-base64" class="tool-view max-w-4xl mx-auto">
-                <div class="flex justify-center mb-8">
-                    <div class="bg-slate-200 dark:bg-slate-700 p-1 rounded-lg flex">
-                        <button onclick="setBase64Mode('encode')" id="btn-b64-encode"
-                            class="px-6 py-2 rounded-md text-sm font-medium transition-all bg-white dark:bg-slate-600 shadow-sm text-indigo-600 dark:text-indigo-400">Encode</button>
-                        <button onclick="setBase64Mode('decode')" id="btn-b64-decode"
-                            class="px-6 py-2 rounded-md text-sm font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200">Decode</button>
-                    </div>
-                </div>
 
-                <div class="flex flex-col gap-6">
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <label id="b64-input-label"
-                                class="text-sm font-medium text-slate-500 dark:text-slate-400">Text to Encode</label>
-                            <button onclick="copyToClipboard('b64-input')"
-                                class="text-xs text-indigo-500 hover:text-indigo-400">Copy</button>
-                        </div>
-                        <textarea id="b64-input"
-                            class="w-full h-40 p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm"
-                            placeholder="Type here..."></textarea>
-                    </div>
 
-                    <div class="flex justify-center">
-                        <i class="fa-solid fa-arrow-down text-slate-400 text-xl"></i>
-                    </div>
 
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <label id="b64-output-label"
-                                class="text-sm font-medium text-slate-500 dark:text-slate-400">Base64 Output</label>
-                            <button onclick="copyToClipboard('b64-output')"
-                                class="text-xs text-indigo-500 hover:text-indigo-400">Copy</button>
-                        </div>
-                        <textarea id="b64-output" readonly
-                            class="w-full h-40 p-4 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg resize-none outline-none font-mono text-sm text-slate-700 dark:text-slate-300"></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <!-- QR Code Tool -->
-            <div id="view-qrcode" class="tool-view max-w-2xl mx-auto">
-                <div
-                    class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-8 flex flex-col items-center">
-                    <div class="w-full mb-6">
-                        <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Content</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="qr-input"
-                                class="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                placeholder="Enter text or URL">
-                            <button onclick="generateQR()"
-                                class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors">Generate</button>
-                        </div>
-                    </div>
-
-                    <div id="qr-container"
-                        class="p-4 bg-white rounded-lg border border-slate-200 dark:border-slate-700 mb-6 hidden">
-                        <div id="qrcode"></div>
-                    </div>
-
-                    <button id="qr-download"
-                        class="hidden px-4 py-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors">
-                        <i class="fa-solid fa-download mr-2"></i>Download Image
-                    </button>
-                </div>
-            </div>
 
             <!-- URL Tool -->
             <div id="view-url" class="tool-view max-w-4xl mx-auto">
@@ -585,79 +497,55 @@
                 </div>
             </div>
 
-            <!-- JSON to Dart Tool -->
-            <div id="view-dart" class="tool-view max-w-6xl mx-auto h-full flex-col use-flex">
-                <div class="flex-1 flex flex-col md:flex-row gap-4 min-h-0">
-                    <div class="flex-1 flex flex-col min-h-[300px]">
+
+
+            <!-- Diff Tool -->
+            <div id="view-diff" class="tool-view max-w-6xl mx-auto h-full flex-col use-flex">
+                <div class="flex gap-2 mb-4">
+                    <button onclick="compareDiff()"
+                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
+                        <i class="fa-solid fa-code-compare mr-2"></i>Compare
+                    </button>
+                    <button onclick="clearDiff()"
+                        class="px-4 py-2 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-md text-sm font-medium transition-colors ml-auto">
+                        <i class="fa-solid fa-trash mr-2"></i>Clear
+                    </button>
+                </div>
+
+                <div class="flex-1 flex flex-col md:flex-row gap-4 min-h-0 h-1/2">
+                    <div class="flex-1 flex flex-col min-h-[200px]">
                         <div class="flex justify-between items-center mb-2">
-                            <label class="text-sm font-medium text-slate-500 dark:text-slate-400">JSON Input</label>
-                            <button onclick="copyToClipboard('dart-input')"
+                            <label class="text-sm font-medium text-slate-500 dark:text-slate-400">Original Text</label>
+                            <button onclick="copyToClipboard('diff-original')"
                                 class="text-xs text-indigo-500 hover:text-indigo-400">Copy</button>
                         </div>
-                        <textarea id="dart-input"
+                        <textarea id="diff-original"
                             class="flex-1 w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm leading-relaxed"
-                            placeholder='{"name": "SudoTools", "version": 1.0}'></textarea>
+                            placeholder="Paste original text here..."></textarea>
                     </div>
-                    <div class="flex-1 flex flex-col min-h-[300px]">
+                    <div class="flex-1 flex flex-col min-h-[200px]">
                         <div class="flex justify-between items-center mb-2">
-                            <label class="text-sm font-medium text-slate-500 dark:text-slate-400">Dart Output</label>
-                            <button onclick="copyToClipboard('dart-output')"
+                            <label class="text-sm font-medium text-slate-500 dark:text-slate-400">Modified Text</label>
+                            <button onclick="copyToClipboard('diff-modified')"
                                 class="text-xs text-indigo-500 hover:text-indigo-400">Copy</button>
                         </div>
-                        <textarea id="dart-output" readonly
-                            class="flex-1 w-full p-4 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg resize-none outline-none font-mono text-sm leading-relaxed text-slate-700 dark:text-slate-300"></textarea>
+                        <textarea id="diff-modified"
+                            class="flex-1 w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm leading-relaxed"
+                            placeholder="Paste modified text here..."></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex-1 flex flex-col min-h-0 h-1/2">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-sm font-medium text-slate-500 dark:text-slate-400">Differences</label>
+                    </div>
+                    <div id="diff-result"
+                        class="flex-1 w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg overflow-y-auto font-mono text-sm leading-relaxed whitespace-pre-wrap">
                     </div>
                 </div>
             </div>
 
-            <!-- CSS Unit Tool -->
-            <div id="view-css" class="tool-view max-w-2xl mx-auto">
-                <div
-                    class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-8">
-                    <div class="flex items-center gap-4 mb-8 pb-6 border-b border-slate-200 dark:border-slate-700">
-                        <label class="text-sm font-medium text-slate-500 dark:text-slate-400">Root Font Size
-                            (px)</label>
-                        <input type="number" id="css-root" value="16"
-                            class="w-24 px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none text-center font-mono">
-                    </div>
 
-                    <div class="space-y-6">
-                        <div class="relative">
-                            <label
-                                class="absolute -top-2.5 left-3 px-1 bg-white dark:bg-slate-800 text-xs font-medium text-indigo-600 dark:text-indigo-400">Pixels
-                                (px)</label>
-                            <input type="number" id="css-px"
-                                class="w-full px-4 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-lg"
-                                placeholder="16">
-                            <button onclick="copyToClipboard('css-px')"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500"><i
-                                    class="fa-regular fa-copy"></i></button>
-                        </div>
-
-                        <div class="relative">
-                            <label
-                                class="absolute -top-2.5 left-3 px-1 bg-white dark:bg-slate-800 text-xs font-medium text-indigo-600 dark:text-indigo-400">REM</label>
-                            <input type="number" id="css-rem"
-                                class="w-full px-4 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-lg"
-                                placeholder="1">
-                            <button onclick="copyToClipboard('css-rem')"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500"><i
-                                    class="fa-regular fa-copy"></i></button>
-                        </div>
-
-                        <div class="relative">
-                            <label
-                                class="absolute -top-2.5 left-3 px-1 bg-white dark:bg-slate-800 text-xs font-medium text-indigo-600 dark:text-indigo-400">EM</label>
-                            <input type="number" id="css-em"
-                                class="w-full px-4 py-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-lg"
-                                placeholder="1">
-                            <button onclick="copyToClipboard('css-em')"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500"><i
-                                    class="fa-regular fa-copy"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
         </div>
     </main>
@@ -741,11 +629,8 @@
                 'json': 'JSON Formatter & Validator',
                 'timestamp': 'Unix Timestamp Converter',
                 'markdown': 'Markdown Previewer',
-                'base64': 'Base64 Encoder / Decoder',
-                'css': 'CSS Unit Converter',
-                'qrcode': 'QR Code Generator',
                 'url': 'URL Encoder / Decoder',
-                'dart': 'JSON to Dart Converter'
+                'diff': 'Diff Checker'
             };
             document.getElementById('page-title').innerText = titles[toolId];
         }
@@ -754,11 +639,8 @@
             initJsonTool();
             initTimestampTool();
             initMarkdownTool();
-            initBase64Tool();
-            initCssTool();
-            initQrcodeTool();
             initUrlTool();
-            initDartTool();
+            initDiffTool();
         }
 
         // --- Shared Utils ---
@@ -932,136 +814,14 @@
         }
 
         // --- Base64 Tool ---
-        function initBase64Tool() {
-            const input = document.getElementById('b64-input');
 
-            input.addEventListener('input', processBase64);
-        }
-
-        function setBase64Mode(mode) {
-            state.base64Mode = mode;
-            const btnEncode = document.getElementById('btn-b64-encode');
-            const btnDecode = document.getElementById('btn-b64-decode');
-            const labelIn = document.getElementById('b64-input-label');
-            const labelOut = document.getElementById('b64-output-label');
-
-            if (mode === 'encode') {
-                btnEncode.className = "px-6 py-2 rounded-md text-sm font-medium transition-all bg-white dark:bg-slate-600 shadow-sm text-indigo-600 dark:text-indigo-400";
-                btnDecode.className = "px-6 py-2 rounded-md text-sm font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200";
-                labelIn.innerText = "Text to Encode";
-                labelOut.innerText = "Base64 Output";
-            } else {
-                btnDecode.className = "px-6 py-2 rounded-md text-sm font-medium transition-all bg-white dark:bg-slate-600 shadow-sm text-indigo-600 dark:text-indigo-400";
-                btnEncode.className = "px-6 py-2 rounded-md text-sm font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200";
-                labelIn.innerText = "Base64 to Decode";
-                labelOut.innerText = "Text Output";
-            }
-            processBase64();
-        }
-
-        function processBase64() {
-            const input = document.getElementById('b64-input').value;
-            const output = document.getElementById('b64-output');
-
-            if (!input) {
-                output.value = '';
-                return;
-            }
-
-            try {
-                if (state.base64Mode === 'encode') {
-                    output.value = btoa(input);
-                } else {
-                    output.value = atob(input);
-                }
-            } catch (e) {
-                output.value = "Invalid Input";
-            }
-        }
 
         // --- CSS Unit Tool ---
-        function initCssTool() {
-            const root = document.getElementById('css-root');
-            const px = document.getElementById('css-px');
-            const rem = document.getElementById('css-rem');
-            const em = document.getElementById('css-em');
 
-            function update(source) {
-                const r = parseFloat(root.value) || 16;
-
-                if (source === 'px') {
-                    const val = parseFloat(px.value);
-                    if (!isNaN(val)) {
-                        rem.value = (val / r).toFixed(4).replace(/\.?0+$/, '');
-                        em.value = (val / r).toFixed(4).replace(/\.?0+$/, '');
-                    } else {
-                        rem.value = ''; em.value = '';
-                    }
-                } else if (source === 'rem') {
-                    const val = parseFloat(rem.value);
-                    if (!isNaN(val)) {
-                        px.value = (val * r).toFixed(4).replace(/\.?0+$/, '');
-                        em.value = val; // Assuming em context is same as root for simplicity in this tool
-                    } else {
-                        px.value = ''; em.value = '';
-                    }
-                } else if (source === 'em') {
-                    const val = parseFloat(em.value);
-                    if (!isNaN(val)) {
-                        px.value = (val * r).toFixed(4).replace(/\.?0+$/, '');
-                        rem.value = val;
-                    } else {
-                        px.value = ''; rem.value = '';
-                    }
-                }
-            }
-
-            root.addEventListener('input', () => update('px')); // Re-calc based on px
-            px.addEventListener('input', () => update('px'));
-            rem.addEventListener('input', () => update('rem'));
-            em.addEventListener('input', () => update('em'));
-        }
 
         // --- QR Code Tool ---
         let qrCodeObj = null;
-        function initQrcodeTool() {
-            // Logic handled in generateQR
-            document.getElementById('qr-download').addEventListener('click', () => {
-                const img = document.querySelector('#qrcode img');
-                if (img) {
-                    const link = document.createElement('a');
-                    link.download = 'qrcode.png';
-                    link.href = img.src;
-                    link.click();
-                }
-            });
-        }
 
-        function generateQR() {
-            const input = document.getElementById('qr-input').value;
-            const container = document.getElementById('qr-container');
-            const qrDiv = document.getElementById('qrcode');
-            const downloadBtn = document.getElementById('qr-download');
-
-            if (!input.trim()) return;
-
-            container.classList.remove('hidden');
-            qrDiv.innerHTML = ''; // Clear previous
-
-            qrCodeObj = new QRCode(qrDiv, {
-                text: input,
-                width: 200,
-                height: 200,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            // Wait for image to generate before showing download
-            setTimeout(() => {
-                downloadBtn.classList.remove('hidden');
-            }, 100);
-        }
 
         // --- URL Tool ---
         function initUrlTool() {
@@ -1111,59 +871,152 @@
         }
 
         // --- JSON to Dart Tool ---
-        function initDartTool() {
-            const input = document.getElementById('dart-input');
-            input.addEventListener('input', () => {
-                const val = input.value.trim();
-                if (!val) {
-                    document.getElementById('dart-output').value = '';
-                    return;
-                }
-                try {
-                    const json = JSON.parse(val);
-                    const dart = jsonToDart(json, 'Root');
-                    document.getElementById('dart-output').value = dart;
-                } catch (e) {
-                    document.getElementById('dart-output').value = `Error: ${e.message}`;
-                }
-            });
+
+
+    </script>
+    <script>
+        // --- Diff Tool ---
+        function initDiffTool() {
+            // No specific init needed right now
         }
 
-        function jsonToDart(json, className) {
-            let output = `class ${className} {\n`;
-            let constructor = `  ${className}({`;
-            let fromJson = `  ${className}.fromJson(Map<String, dynamic> json) {\n`;
-            let toJson = `  Map<String, dynamic> toJson() {\n    final Map<String, dynamic> data = <String, dynamic>{};\n`;
+        function compareDiff() {
+            const original = document.getElementById('diff-original').value;
+            const modified = document.getElementById('diff-modified').value;
+            const resultDiv = document.getElementById('diff-result');
 
-            const properties = [];
-
-            for (const key in json) {
-                const value = json[key];
-                let type = 'dynamic';
-
-                if (typeof value === 'string') type = 'String';
-                else if (typeof value === 'number') type = Number.isInteger(value) ? 'int' : 'double';
-                else if (typeof value === 'boolean') type = 'bool';
-                else if (Array.isArray(value)) type = 'List<dynamic>'; // Simplified for now
-                else if (value === null) type = 'dynamic';
-                else if (typeof value === 'object') type = 'Map<String, dynamic>';
-
-                // Handle nullability
-                type += '?';
-
-                output += `  ${type} ${key};\n`;
-                constructor += `this.${key}, `;
-                fromJson += `    ${key} = json['${key}'];\n`;
-                toJson += `    data['${key}'] = ${key};\n`;
+            if (!original && !modified) {
+                resultDiv.innerHTML = '<div class="p-4 text-slate-400 italic">Enter text above to compare...</div>';
+                return;
             }
 
-            constructor = constructor.replace(/, $/, '') + '});';
+            const diff = Diff.diffLines(original, modified);
 
-            output += '\n' + constructor + '\n\n' + fromJson + '  }\n\n' + toJson + '    return data;\n  }\n}';
+            // Build Split View Container
+            const container = document.createElement('div');
+            container.className = 'w-full min-w-[600px] bg-slate-50 dark:bg-slate-900'; // min-w to force scroll on small screens
 
-            return output;
+            // Header
+            const header = document.createElement('div');
+            header.className = 'grid grid-cols-2 bg-slate-200 dark:bg-slate-800 border-b border-slate-300 dark:border-slate-700 font-medium text-xs text-slate-500 uppercase tracking-wider sticky top-0 z-10';
+            header.innerHTML = '<div class="p-2 border-r border-slate-300 dark:border-slate-700">Original</div><div class="p-2">Modified</div>';
+            container.appendChild(header);
+
+            let delBuffer = [];
+            let addBuffer = [];
+
+            function flushBuffers() {
+                const count = Math.max(delBuffer.length, addBuffer.length);
+                for (let i = 0; i < count; i++) {
+                    const row = document.createElement('div');
+                    row.className = 'grid grid-cols-2 border-b border-slate-200 dark:border-slate-800 text-sm font-mono';
+
+                    const leftDiv = document.createElement('div');
+                    leftDiv.className = 'p-1 px-2 break-all whitespace-pre-wrap border-r border-slate-200 dark:border-slate-800 min-h-[1.5em]';
+
+                    const rightDiv = document.createElement('div');
+                    rightDiv.className = 'p-1 px-2 break-all whitespace-pre-wrap min-h-[1.5em]';
+
+                    // Intra-line Diff Logic
+                    if (i < delBuffer.length && i < addBuffer.length) {
+                        // Both exist -> Modified line -> Diff chars
+                        const charDiff = Diff.diffChars(delBuffer[i], addBuffer[i]);
+
+                        // Left Side (Original) - highlight removals
+                        leftDiv.classList.add('bg-red-50', 'dark:bg-red-900/10');
+                        rightDiv.classList.add('bg-green-50', 'dark:bg-green-900/10');
+
+                        charDiff.forEach(part => {
+                            if (part.added) return; // Skip added parts for left side
+                            const span = document.createElement('span');
+                            span.textContent = part.value;
+                            if (part.removed) {
+                                span.className = 'bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100';
+                            } else {
+                                span.className = 'text-slate-500 dark:text-slate-400';
+                            }
+                            leftDiv.appendChild(span);
+                        });
+
+                        // Right Side (Modified) - highlight additions
+                        charDiff.forEach(part => {
+                            if (part.removed) return; // Skip removed parts for right side
+                            const span = document.createElement('span');
+                            span.textContent = part.value;
+                            if (part.added) {
+                                span.className = 'bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100';
+                            } else {
+                                span.className = 'text-slate-600 dark:text-slate-300';
+                            }
+                            rightDiv.appendChild(span);
+                        });
+
+                    } else {
+                        // Pure Add or Remove
+                        if (i < delBuffer.length) {
+                            leftDiv.classList.add('bg-red-100', 'dark:bg-red-900/30', 'text-red-900', 'dark:text-red-100');
+                            leftDiv.textContent = delBuffer[i];
+                            rightDiv.classList.add('bg-slate-50', 'dark:bg-slate-900'); // Empty
+                        } else if (i < addBuffer.length) {
+                            leftDiv.classList.add('bg-slate-50', 'dark:bg-slate-900'); // Empty
+                            rightDiv.classList.add('bg-green-100', 'dark:bg-green-900/30', 'text-green-900', 'dark:text-green-100');
+                            rightDiv.textContent = addBuffer[i];
+                        }
+                    }
+
+                    row.appendChild(leftDiv);
+                    row.appendChild(rightDiv);
+                    container.appendChild(row);
+                }
+                delBuffer = [];
+                addBuffer = [];
+            }
+
+            diff.forEach(part => {
+                // Split value into lines, handling trailing newlines gracefully
+                // value often ends with \n. split('\n') gives empty string at end.
+                let lines = part.value.split('\n');
+                if (lines[lines.length - 1] === '') lines.pop();
+
+                if (part.removed) {
+                    delBuffer.push(...lines);
+                } else if (part.added) {
+                    addBuffer.push(...lines);
+                } else {
+                    flushBuffers(); // Flush pending changes before common block
+
+                    // Render common lines
+                    lines.forEach(line => {
+                        const row = document.createElement('div');
+                        row.className = 'grid grid-cols-2 border-b border-slate-200 dark:border-slate-800 text-sm font-mono hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors';
+
+                        // Left
+                        const leftDiv = document.createElement('div');
+                        leftDiv.className = 'p-1 px-2 break-all whitespace-pre-wrap border-r border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400';
+                        leftDiv.textContent = line;
+
+                        // Right
+                        const rightDiv = document.createElement('div');
+                        rightDiv.className = 'p-1 px-2 break-all whitespace-pre-wrap text-slate-600 dark:text-slate-400';
+                        rightDiv.textContent = line;
+
+                        row.appendChild(leftDiv);
+                        row.appendChild(rightDiv);
+                        container.appendChild(row);
+                    });
+                }
+            });
+            flushBuffers(); // Flush any remaining at the end
+
+            resultDiv.innerHTML = '';
+            resultDiv.appendChild(container);
         }
 
+        function clearDiff() {
+            document.getElementById('diff-original').value = '';
+            document.getElementById('diff-modified').value = '';
+            document.getElementById('diff-result').innerHTML = '';
+        }
     </script>
 </body>
 
